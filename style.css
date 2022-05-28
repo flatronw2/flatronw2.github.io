@@ -1,8 +1,11 @@
 @import url("https://use.typekit.net/jmk3xov.css");
+body{
+  margin:0;
+}
 
 canvas {
   position: fixed;
-  top: 0;
+  top: 15%;
   left: 0;
 }
 
@@ -36,17 +39,22 @@ h1, h2, h3, blockquote {
   font-style: normal;
 }
 
-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
+
+.row {
+  padding: 10px;
+  width: 250px;
+  display: flex;
 }
 
+#skill{
+  padding: 15px;
+  width: 100px;
+}
 
 
   header {
     background: var(--dark-bg);
-    grid-column: 2 / span 5;
+    grid-column: 2 / span 4;
     font-size: 2.5rem;
     padding: 2rem;
     margin-bottom: var(--spacing);
@@ -74,8 +82,9 @@ canvas {
     font-size: 4rem;
     display: inline;
     line-height: 1;
+    
   }
 
-  .left {
-    grid-column: 6 / 12;
+  .skills {
+    grid-column: 5 / 10;
   }

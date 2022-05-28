@@ -1,150 +1,336 @@
 import './style.css';
-import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js';
+import {FBXLoader} from 'https://cdn.jsdelivr.net/npm/three@0.118.1/examples/jsm/loaders/FBXLoader.js';
+import {GLTFLoader} from 'https://cdn.jsdelivr.net/npm/three@0.118.1/examples/jsm/loaders/GLTFLoader.js';
+import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.118/examples/jsm/controls/OrbitControls.js';
+import { ColladaLoader } from 'three/examples/jsm/loaders/ColladaLoader.js';
+import Stats from 'three/examples/jsm/libs/stats.module.js';
+import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js'
 
-// Setup
+const SCREEN_WIDTH = window.innerWidth;
+const SCREEN_HEIGHT = window.innerHeight;
 
-const scene = new THREE.Scene();
+let container;
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+let camera, scene, scene2, renderer;
 
-const renderer = new THREE.WebGLRenderer({
-  canvas: document.querySelector('#bg'),
-});
+let mouseX = 0, mouseY = 0;
 
-renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(window.innerWidth, window.innerHeight);
-camera.position.setZ(30);
-camera.position.setX(-3);
+const windowHalfX = window.innerWidth / 2;
+const windowHalfY = window.innerHeight / 2;
 
-renderer.render(scene, camera);
+init();
+animate();
 
-// Lights
 
-const pointLight = new THREE.PointLight(0xffffff);
-pointLight.position.set(5, 5, 5);
+function init() {
 
-const ambientLight = new THREE.AmbientLight(0xffffff);
-scene.add(pointLight, ambientLight);
+	container = document.createElement( 'div' );
+	document.body.appendChild( container );
 
-// Helpers
+	camera = new THREE.PerspectiveCamera( 35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 5000 );
+	camera.position.z = 1500;
 
-// const lightHelper = new THREE.PointLightHelper(pointLight)
-// const gridHelper = new THREE.GridHelper(200, 50);
-// scene.add(lightHelper, gridHelper)
+	scene = new THREE.Scene();
+	scene.background = new THREE.Color( 0x000000 );
+	scene.fog = new THREE.Fog( 0x000000, 1500, 4000 );
 
-// const controls = new OrbitControls(camera, renderer.domElement);
+	scene2 = new THREE.Scene();
+	scene2.background = new THREE.Color( 0x000000 );
+	scene2.fog = new THREE.Fog( 0x000000, 1500, 4000 );
 
-function addStar() {
-  const geometry = new THREE.SphereGeometry(0.2, 24, 24);
-  const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
-  const star = new THREE.Mesh(geometry, material);
+	// GROUND
 
-  const [x, y, z] = Array(3)
-    .fill()
-    .map(() => THREE.MathUtils.randFloatSpread(100));
+	const imageCanvas = document.createElement( "canvas" );
+	const context = imageCanvas.getContext( "2d" );
 
-  star.position.set(x, y, z);
-  scene.add(star);
+	imageCanvas.width = imageCanvas.height = 128;
+
+	context.fillStyle = "#444";
+	context.fillRect( 0, 0, 128, 128 );
+
+	context.fillStyle = "#fff";
+	context.fillRect( 0, 0, 64, 64 );
+	context.fillRect( 64, 64, 64, 64 );
+
+	const textureCanvas = new THREE.CanvasTexture( imageCanvas );
+	textureCanvas.repeat.set( 1000, 1000 );
+	textureCanvas.wrapS = THREE.RepeatWrapping;
+	textureCanvas.wrapT = THREE.RepeatWrapping;
+
+	const textureCanvas2 = textureCanvas.clone();
+	textureCanvas2.magFilter = THREE.NearestFilter;
+	textureCanvas2.minFilter = THREE.NearestFilter;
+
+	const	materialCanvas = new THREE.MeshBasicMaterial( { map: textureCanvas } );
+	const materialCanvas2 = new THREE.MeshBasicMaterial( { color: 0xffccaa, map: textureCanvas2 } );
+
+	const geometry = new THREE.PlaneGeometry( 100, 100 );
+
+	const meshCanvas = new THREE.Mesh( geometry, materialCanvas );
+	meshCanvas.rotation.x = - Math.PI / 2;
+	meshCanvas.scale.set( 1000, 1000, 1000 );
+
+	const meshCanvas2 = new THREE.Mesh( geometry, materialCanvas2 );
+	meshCanvas2.rotation.x = - Math.PI / 2;
+	meshCanvas2.scale.set( 1000, 1000, 1000 );
+
+
+	// PAINTING
+
+	const callbackPainting = function () {
+
+		const image = texturePainting.image;
+
+		texturePainting2.image = image;
+		texturePainting2.needsUpdate = true;
+
+		scene.add( meshCanvas );
+		scene2.add( meshCanvas2 );
+
+		const geometry = new THREE.PlaneGeometry( 100, 100 );
+		const mesh = new THREE.Mesh( geometry, materialPainting );
+		const mesh2 = new THREE.Mesh( geometry, materialPainting2 );
+
+		addPainting( scene, mesh );
+		addPainting( scene2, mesh2 );
+
+		function addPainting( zscene, zmesh ) {
+
+			zmesh.scale.x = image.width / 100;
+			zmesh.scale.y = image.height / 100;
+
+			zscene.add( zmesh );
+
+			const meshFrame = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x000000 } ) );
+			meshFrame.position.z = - 10.0;
+			meshFrame.scale.x = 1.1 * image.width / 100;
+			meshFrame.scale.y = 1.1 * image.height / 100;
+			zscene.add( meshFrame );
+
+			const meshShadow = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.75, transparent: true } ) );
+			meshShadow.position.y = - 1.1 * image.height / 2;
+			meshShadow.position.z = - 1.1 * image.height / 2;
+			meshShadow.rotation.x = - Math.PI / 2;
+			meshShadow.scale.x = 1.1 * image.width / 100;
+			meshShadow.scale.y = 1.1 * image.height / 100;
+			zscene.add( meshShadow );
+
+			const floorHeight = - 1.117 * image.height / 2;
+			meshCanvas.position.y = meshCanvas2.position.y = floorHeight;
+
+		}
+
+
+	};
+
+	const texturePainting = new THREE.TextureLoader().load( "758px-Canestra_di_frutta_(Caravaggio).jpg", callbackPainting );
+	const texturePainting2 = new THREE.Texture();
+	const materialPainting = new THREE.MeshBasicMaterial( { color: 0xffffff, map: texturePainting } );
+	const materialPainting2 = new THREE.MeshBasicMaterial( { color: 0xffccaa, map: texturePainting2 } );
+
+	texturePainting2.minFilter = texturePainting2.magFilter = THREE.NearestFilter;
+	texturePainting.minFilter = texturePainting.magFilter = THREE.LinearFilter;
+	texturePainting.mapping = THREE.UVMapping;
+
+
+	renderer = new THREE.WebGLRenderer( { antialias: true } );
+	renderer.setPixelRatio( window.devicePixelRatio );
+	renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
+	renderer.autoClear = false;
+
+	renderer.domElement.style.position = "relative";
+	container.appendChild( renderer.domElement );
+
+	document.addEventListener( 'mousemove', onDocumentMouseMove );
+
 }
 
-Array(200).fill().forEach(addStar);
 
-// Background
+function onDocumentMouseMove( event ) {
 
-const spaceTexture = new THREE.TextureLoader().load('space.jpg');
-scene.background = spaceTexture;
+	mouseX = ( event.clientX - windowHalfX );
+	mouseY = ( event.clientY - windowHalfY );
 
-// Avatar
-
-const avatarTexture = new THREE.TextureLoader().load('avatar.png');
-
-const avatar = new THREE.Mesh(new THREE.BoxGeometry(3, 3, 3), new THREE.MeshBasicMaterial({ map: avatarTexture }));
-
-scene.add(avatar);
-
-
-// Earth
-
-const earthTexture = new THREE.TextureLoader().load('earth.jpeg');
-
-const earth = new THREE.Mesh(
-  new THREE.SphereGeometry(8, 32, 32),
-  new THREE.MeshStandardMaterial({
-    map: earthTexture,
-  })
-);
-
-scene.add(earth);
-
-//skills
-
-const angularTexture = new THREE.TextureLoader().load('angular.png');
-
-const angular = new THREE.Mesh(new THREE.SphereGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ map: angularTexture }));
-
-scene.add(angular);
-// Moon
-
-const moonTexture = new THREE.TextureLoader().load('moon.jpg');
-const normalTexture = new THREE.TextureLoader().load('normal.jpg');
-
-const moon = new THREE.Mesh(
-  new THREE.SphereGeometry(2, 32, 32),
-  new THREE.MeshStandardMaterial({
-    map: moonTexture,
-    normalMap: normalTexture,
-  })
-);
-
-earth.add(moon);
-
-earth.position.z = 30;
-earth.position.setX(-10);
-
-moon.position.z = 12;
-moon.position.setX(-11);
-
-avatar.position.z = -5;
-avatar.position.x = 2;
-
-angular.position.y = -10;
-angular.position.z = 25;
-angular.position.x = -5;
-
-// Scroll Animation
-
-function moveCamera() {
-  const t = document.body.getBoundingClientRect().top;
-
-  avatar.rotation.y += 0.01;
-  avatar.rotation.z += 0.01;
-
-  camera.position.z = t * -0.01;
-  camera.position.x = t * -0.0002;
-  camera.rotation.y = t * -0.0002;
 }
 
-document.body.onscroll = moveCamera;
-moveCamera();
-
-// Animation Loop
 
 function animate() {
-  requestAnimationFrame(animate);
 
-  angular.rotation.x += 0.01;
-  angular.rotation.y += 0.01;
-  
-  earth.rotation.y += 0.001;
+	requestAnimationFrame( animate );
 
-  moon.rotation.x += 0.001;
+	render();
 
-  avatar.rotation.y += 0.002;
-  avatar.rotation.z += 0.002;
-  // controls.update();
-
-  renderer.render(scene, camera);
 }
 
-animate();
+function render() {
+
+	camera.position.x += ( mouseX - camera.position.x ) * .05;
+	camera.position.y += ( - ( mouseY - 200 ) - camera.position.y ) * .05;
+
+	camera.lookAt( scene.position );
+
+	renderer.clear();
+	renderer.setScissorTest( true );
+
+	renderer.setScissor( 0, 0, SCREEN_WIDTH / 2 - 2, SCREEN_HEIGHT );
+	renderer.render( scene, camera );
+
+	renderer.setScissor( SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2 - 2, SCREEN_HEIGHT );
+	renderer.render( scene2, camera );
+
+	renderer.setScissorTest( false );
+
+}
+  
+let camera2, scene3, renderer2;
+			const mixers = [];
+			let stats;
+
+			const clock = new THREE.Clock();
+
+			init2();
+			animate2();
+
+			function init2() {
+
+				const container2 = document.getElementById( 'containerr' );
+
+				camera2 = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 5000 );
+				camera2.position.set( 0, 0, 250 );
+
+				scene3 = new THREE.Scene();
+				scene3.background = new THREE.Color().setHSL( 0.6, 0, 1 );
+				scene3.fog = new THREE.Fog( scene3.background, 1, 5000 );
+
+				// LIGHTS
+
+				const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.4 );
+				hemiLight.color.setHSL( 0.6, 1, 0.6 );
+				hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+				hemiLight.position.set( 0, 50, 0 );
+				scene3.add( hemiLight );
+
+				
+
+				//
+
+				const dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+				dirLight.color.setHSL( 0.1, 1, 0.95 );
+				dirLight.position.set( - 1, 1.75, 1 );
+				dirLight.position.multiplyScalar( 30 );
+				scene3.add( dirLight );
+
+				dirLight.castShadow = true;
+
+				dirLight.shadow.mapSize.width = 2048;
+				dirLight.shadow.mapSize.height = 2048;
+
+				const d = 50;
+
+				dirLight.shadow.camera.left = - d;
+				dirLight.shadow.camera.right = d;
+				dirLight.shadow.camera.top = d;
+				dirLight.shadow.camera.bottom = - d;
+
+				dirLight.shadow.camera.far = 3500;
+				dirLight.shadow.bias = - 0.0001;
+
+		
+
+				// GROUND
+
+				const groundGeo = new THREE.PlaneGeometry( 10000, 10000 );
+				const groundMat = new THREE.MeshLambertMaterial( { color: 0xffffff } );
+				groundMat.color.setHSL( 0.095, 1, 0.75 );
+
+				const ground = new THREE.Mesh( groundGeo, groundMat );
+				ground.position.y = - 33;
+				ground.rotation.x = - Math.PI / 2;
+				ground.receiveShadow = true;
+				scene3.add( ground );
+
+			
+
+				// MODEL
+
+				const loader = new GLTFLoader();
+
+				loader.load( 'Flamingo.glb', function ( gltf ) {
+
+					const mesh3 = gltf.scene.children[ 0 ];
+
+					const s = 0.35;
+					mesh3.scale.set( s, s, s );
+					mesh3.position.y = 15;
+					mesh3.rotation.y = - 1;
+
+					mesh3.castShadow = true;
+					mesh3.receiveShadow = true;
+
+					scene3.add( mesh3 );
+
+					const mixer = new THREE.AnimationMixer( mesh3 );
+					mixer.clipAction( gltf.animations[ 0 ] ).setDuration( 1 ).play();
+					mixers.push( mixer );
+
+				} );
+
+				// RENDERER
+
+				renderer2 = new THREE.WebGLRenderer( { antialias: true } );
+				renderer2.setPixelRatio( window.devicePixelRatio );
+				renderer2.setSize( window.innerWidth, window.innerHeight );
+				container2.appendChild( renderer2.domElement );
+				renderer2.outputEncoding = THREE.sRGBEncoding;
+				renderer2.shadowMap.enabled = true;
+
+			
+
+				
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize );
+
+
+			}
+
+			function onWindowResize() {
+
+				camera2.aspect = window.innerWidth / window.innerHeight;
+				camera2.updateProjectionMatrix();
+
+				renderer2.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			//
+
+			function animate2() {
+
+				requestAnimationFrame( animate2 );
+
+				render2();
+
+			}
+
+			function render2() {
+
+				const delta = clock.getDelta();
+
+				for ( let i = 0; i < mixers.length; i ++ ) {
+
+					mixers[ i ].update( delta );
+
+				}
+
+				renderer2.render( scene3, camera2 );
+
+			}
+
+
+
+
+
+
