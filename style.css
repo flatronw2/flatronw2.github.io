@@ -150,6 +150,8 @@ h1{
 .icon {
   width: 50px;
   padding: 15px;
+}
+#social {
   cursor: pointer;
 }
 
@@ -176,7 +178,13 @@ h3 {
 button {
   background-color: rgb(69, 218, 55);
 }
-
+.project-btn{
+  background-color: transparent;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  width: 100%;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
 @media (max-width: 600px) {
 
   main {
