@@ -295,8 +295,28 @@ function init2() {
   earth.position.y = 135;
   earth.position.z = -1245;
   earth.position.setX(400);
+  // RINGS
+  const textureRing = new THREE.TextureLoader().load(
+    "rings.jpg"
+  );
+  const ring = new THREE.RingGeometry( 110, 120 ,132 );
+  const material = new THREE.MeshBasicMaterial( { map: textureRing,  color: 0xffffff, side: THREE.DoubleSide } );
+  const meshRing = new THREE.Mesh( ring, material );
+  earth.add( meshRing );
 
- 
+  meshRing.position.z = 15;
+  meshRing.rotation.x = 1.5;
+
+   const textureRing2 = new THREE.TextureLoader().load(
+    "rings.jpg"
+  );
+  const ring2 = new THREE.RingGeometry( 95, 109 ,132 );
+  const material2 = new THREE.MeshBasicMaterial( { map: textureRing2,  color: 0xfff000000, side: THREE.DoubleSide } );
+  const meshRing2 = new THREE.Mesh( ring2, material2 );
+  earth.add( meshRing2 );
+
+  meshRing2.position.z = 15;
+  meshRing2.rotation.x = 1.5;
   // RENDERER
 
   renderer2 = new THREE.WebGLRenderer({ antialias: true });
