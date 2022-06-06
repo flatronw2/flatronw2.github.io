@@ -280,6 +280,23 @@ function init2() {
     mixers.push(mixer);
   });
 
+  // Earth
+
+  const earthTexture = new THREE.TextureLoader().load("earth.jpeg");
+
+  const earth = new THREE.Mesh(
+    new THREE.SphereGeometry(60, 60, 60),
+    new THREE.MeshStandardMaterial({
+      map: earthTexture,
+    })
+  );
+
+  scene3.add(earth);
+  earth.position.y = 135;
+  earth.position.z = -1245;
+  earth.position.setX(400);
+
+ 
   // RENDERER
 
   renderer2 = new THREE.WebGLRenderer({ antialias: true });
@@ -305,8 +322,9 @@ function onWindowResize() {
 
 function animate2() {
   requestAnimationFrame(animate2);
-
+  
   render2();
+
 }
 
 function render2() {
@@ -318,3 +336,4 @@ function render2() {
 
   renderer2.render(scene3, camera2);
 }
+
