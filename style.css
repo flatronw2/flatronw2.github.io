@@ -186,7 +186,13 @@ button {
   margin-bottom: 8px;
   cursor: pointer;
 }
-
+a {
+  text-decoration: none;
+}
+label {
+  font-size: large;
+  font-weight: bold;
+}
 
 @media (max-width: 600px) {
 

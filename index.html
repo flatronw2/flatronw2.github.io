@@ -29,7 +29,7 @@
         <h2>📜 About me</h2>
         <p>
           I love sport. I like playing waterpolo mostly. I love video games and
-          programming(frontend mainly). I'm speaking english fluent, serbian is
+          programming. I'm speaking english fluent, serbian is
           my native. Currently i'm expanding my knowledge in programming by
           learning new technoligys. Nothnig special.
         </p>
@@ -54,8 +54,8 @@
 
       <blockquote>
         <p>
-          “The best way to predict your future is to create it.” <br /><br />Benjamin
-          Freklin
+          “The best way to predict your future is to create it.”
+          <br /><br />Benjamin Freklin
         </p>
       </blockquote>
 
@@ -90,7 +90,6 @@
                   source code
                 </a>
               </p>
-           
             </div>
           </div>
           <div class="project-card">
@@ -105,7 +104,6 @@
                   source code
                 </a>
               </p>
-            
             </div>
           </div>
           <div class="project-card">
@@ -114,19 +112,19 @@
               <i class="fa fa-clock-o" style="padding: 10px 5px"
                 >(28-5-2022) -
               </i>
-              <h1>Portfolio with ThreeJS</h1>
-              <p>• Simple portfolio project with ThreeJS animations. 
+              <h1>Portfolio with Three.js</h1>
+              <p>
+                • Simple portfolio project with Three.js animations.
                 <a href="https://github.com/flatronw2/flatronw2.github.io">
                   source code
                 </a>
               </p>
-             
             </div>
           </div>
         </div>
       </div>
       <div class="skills">
-        <h1 style="color: black; padding-bottom: 50px;">💻 Skills</h1>
+        <h1 style="color: black; padding-bottom: 50px">💻 Skills</h1>
         <div class="row">
           <img src="html.png" alt="" id="skill" />
           <img src="css.png" alt="" id="skill" />
@@ -143,18 +141,19 @@
           <img src="mysql.png" alt="" id="skill" />
         </div>
       </div>
-      <div class="form-container">
-        <form onsubmit="sendEmail(); reset(); return false;">
-          <h3>Contact</h3>
-          <input type="text" id="name" placeholder="Your name" required />
-          <input type="email" id="email" placeholder="Your email" required />
-          <input type="text" id="subject" placeholder="Subject" required />
-          <textarea
-            id="message"
-            rows="4"
-            placeholder="How can I help you?"
-          ></textarea>
-          <button type="submit">Send</button>
+      <div class="form-container" style="color: black">
+        <h1 style="padding-bottom: 35px">Contact me</h1>
+        <form action="https://formspree.io/f/mvolyodn" method="POST">
+          <label>
+            Your email:
+            <input type="email" name="email" id="email" required />
+          </label>
+          <label>
+            Your message:
+            <textarea name="message" id="message" required ></textarea>
+          </label>
+
+          <button id="btn" type="submit">Send</button>
         </form>
       </div>
       <div class="icons">
@@ -195,21 +194,6 @@
       	float h = normalize( vWorldPosition + offset ).y;
       	gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h , 0.0), exponent ), 0.0 ) ), 1.0 );
 
-      }
-    </script>
-    <script src="https://smtpjs.com/v3/smtp.js"></script>
-
-    <script>
-      function sendEmail() {
-        Email.send({
-          Host: "smtp.elasticemail.com",
-          Username: "emailforrandomstuff1010@gmail.com",
-          Password: "3807F74D0F66486396BE97122A82164A6E13",
-          To: "emailforrandomstuff1010@gmail.com",
-          From: document.getElementById("email").value,
-          Subject: "new contanct form ",
-          Body: "And this is the body",
-        }).then((message) => alert(message));
       }
     </script>
   </body>

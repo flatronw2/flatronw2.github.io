@@ -282,7 +282,7 @@ function init2() {
 
   // Earth
 
-  const earthTexture = new THREE.TextureLoader().load("earth.jpeg");
+  const earthTexture = new THREE.TextureLoader().load("saturn.jpg");
 
   const earth = new THREE.Mesh(
     new THREE.SphereGeometry(60, 60, 60),
@@ -337,3 +337,14 @@ function render2() {
   renderer2.render(scene3, camera2);
 }
 
+const btn = document.getElementById('btn');
+
+btn.addEventListener('click', function handleClick(event) {
+  event.preventDefault();
+
+  const emailInput = document.getElementById('email');
+  const messageInput = document.getElementById('message');
+
+  emailInput.value = '';
+  messageInput.value = '';
+});
